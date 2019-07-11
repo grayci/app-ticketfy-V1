@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 import { presentations } from '../mock'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import firebase from '../Firebase'
 
 const styles = StyleSheet.create({
   container: {
@@ -82,6 +83,8 @@ const styles = StyleSheet.create({
 class MainActivity extends Component {
   constructor() {
     super()
+    this.ref = firebase.firestore().collection('events')
+    this.unsubscribe = null
     this.state = {
       isLoading: true,
       presentations: [],
@@ -96,21 +99,25 @@ class MainActivity extends Component {
   updateSearchInput = async (text, field) => {
     try {
       this.setState({ ...this.state, [field]: text })
-      let filtredPresentation = []
-      if (text === '' || text === '' || text === null) {
-        const presentationsStorage = await AsyncStorage.getItem('presentations')
-        filtredPresentation = JSON.parse(presentationsStorage)
-        this.setState({ presentations: filtredPresentation })
-      }
     } catch (error) {
       alert('Erro na busca')
     }
   }
 
+  onCollectionUpdate = querySnapshot => {
+    const presentations = []
+    querySnapshot.forEach(doc => {
+      presentations.push({
+        id: doc.id,
+        ...doc.data()
+      })
+    })
+    this.setState({ isLoading: false, presentations })
+  }
+
   componentDidMount = async () => {
     try {
-      await AsyncStorage.setItem('presentations', JSON.stringify(presentations))
-      this.setState({ isLoading: false, presentations: presentations })
+      this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate)
     } catch (error) {
       console.log(error)
     }
@@ -160,7 +167,7 @@ class MainActivity extends Component {
                     renderToHardwareTextureAndroid={true}
                   >
                     <Image
-                      source={p.image}
+                      source={{ uri: p.image }}
                       style={{ width: 160, height: 84 }}
                       shouldRasterizeIOS={true}
                       renderToHardwareTextureAndroid={true}

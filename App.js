@@ -5,6 +5,8 @@ import EventsActivity from './components/EventsActivity'
 import FavoritesActivity from './components/FavoritesActivity'
 import CartActivity from './components/CartActivity'
 
+import './fixtimebug' // <<<<<<<<<<<<<<<<<<
+
 const RootStack = createStackNavigator(
   {
     MainActivity: MainActivity,

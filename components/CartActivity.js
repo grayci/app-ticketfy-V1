@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { AsyncStorage, StyleSheet, ScrollView, ActivityIndicator, View, Text } from 'react-native'
+import { StyleSheet, ScrollView, ActivityIndicator, View, Text } from 'react-native'
+import firebase from '../Firebase'
 
 const styles = StyleSheet.create({
   container: {
@@ -86,13 +87,23 @@ class CartActivity extends Component {
     }
   }
 
+  getEventCollection = async id =>
+    await firebase
+      .firestore()
+      .collection('events')
+      .doc(id)
+      .get()
+
   componentDidMount = async () => {
     const { navigation } = this.props
     const presentationId = navigation.getParam('presentationId')
 
     try {
-      const presentationsStorage = await AsyncStorage.getItem('presentations')
-      const presentation = JSON.parse(presentationsStorage).find(p => p.id === parseInt(presentationId))
+      const presentationCollection = await this.getEventCollection(presentationId)
+      const presentation = {
+        id: presentationId,
+        ...presentationCollection.data()
+      }
       this.setState({ isLoading: false, presentation: presentation })
     } catch (error) {
       console.log(error)

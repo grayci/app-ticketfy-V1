@@ -9,7 +9,7 @@ import {
   Image,
   TouchableWithoutFeedback
 } from 'react-native'
-
+import firebase from '../Firebase'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 const styles = StyleSheet.create({
@@ -118,13 +118,39 @@ class FirstEvent extends Component {
     header: null // !!! Hide Header
   }
 
+  getEventCollection = async id =>
+    await firebase
+      .firestore()
+      .collection('events')
+      .doc(id)
+      .get()
+
+  addFavorite = async presentation => {
+    this.setState({ isLoading: true })
+    try {
+      await firebase
+        .firestore()
+        .collection('favorites')
+        .doc(this.state.presentation.id)
+        .set(presentation)
+      this.setState({ isLoading: false })
+      this.props.navigation.navigate('FavoritesActivity')
+    } catch (error) {
+      console.log(error)
+      alert('erro ao adicionar aos favoritos')
+    }
+  }
+
   componentDidMount = async () => {
     const { navigation } = this.props
     const presentationId = navigation.getParam('presentationId')
 
     try {
-      const presentationsStorage = await AsyncStorage.getItem('presentations')
-      const presentation = JSON.parse(presentationsStorage).find(p => p.id === parseInt(presentationId))
+      const presentationCollection = await this.getEventCollection(presentationId)
+      const presentation = {
+        id: presentationId,
+        ...presentationCollection.data()
+      }
       this.setState({ isLoading: false, presentation: presentation })
     } catch (error) {
       console.log(error)
@@ -132,7 +158,7 @@ class FirstEvent extends Component {
       navigation.navigate('MainActivity')
     }
   }
-
+  //S4UW09WA5WA-EB2GAMZ812AZFMOH355
   render() {
     const { isLoading, presentation } = this.state
     if (isLoading) {
@@ -148,7 +174,7 @@ class FirstEvent extends Component {
           <ScrollView style={styles.container}>
             <View>
               <Image
-                source={presentation.image}
+                source={{ uri: presentation.image }}
                 style={{ width: '100%', height: 175, position: 'relative' }}
                 shouldRasterizeIOS={true}
                 renderToHardwareTextureAndroid={true}
@@ -165,11 +191,7 @@ class FirstEvent extends Component {
               <Text style={styles.eventName}>{presentation.name}</Text>
               <Icon
                 name="heart"
-                onPress={() =>
-                  this.props.navigation.navigate('FavoritesActivity', {
-                    presentationId: presentation.id
-                  })
-                }
+                onPress={() => this.addFavorite(presentation)}
                 size={27}
                 color="#d13972"
                 style={styles.iconHeart}
@@ -178,13 +200,13 @@ class FirstEvent extends Component {
             <View style={styles.eventInfo}>
               <Text style={styles.txtInfo}>
                 <Icon name="location-arrow" size={16} color="#d13972" />
-                {presentation.location}
+                {'   ' + presentation.location}
               </Text>
             </View>
             <View style={styles.eventInfo}>
               <Text style={styles.txtInfo}>
                 <Icon name="calendar" size={16} color="#d13972" />
-                {presentation.date} | Horário: {presentation.hour}
+                {'   ' + presentation.date} | Horário: {presentation.hour}
               </Text>
             </View>
             <View style={styles.contTitle}>

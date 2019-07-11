@@ -9,7 +9,7 @@ const presentations = [
   {
     id: 1,
     name: 'Neon Party',
-    date: '  22/05',
+    date: '22/05',
     hour: '16:00',
     description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed faucibus, massa at volutpat sodales, lectus purus rhoncus sapien, in interdum elit mi id libero. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.`,
     location: '  Party Night Club, Centro | Porto Alegre, RS',
@@ -44,7 +44,7 @@ const presentations = [
   {
     id: 2,
     name: 'Music Festival',
-    date: '  05/06',
+    date: '05/06',
     hour: '16:00',
     description: `Fusce tempus volutpat rutrum. Quisque iaculis, ex vel faucibus hendrerit, felis risus ultrices arcu, at lacinia diam enim eu odio. Phasellus tincidunt imperdiet turpis vel imperdiet. Fusce consequat dui eu mauris tempus elementum.`,
     location: '  Parque de enventos, 1500 | Porto Alegre, RS',
